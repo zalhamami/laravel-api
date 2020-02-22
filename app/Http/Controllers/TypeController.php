@@ -7,8 +7,6 @@ use Illuminate\Http\Request;
 
 class TypeController extends ApiController
 {
-    private $repo;
-
     public function __construct() {
         $this->repo = new TypeRepository();
     }
