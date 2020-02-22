@@ -10,7 +10,7 @@ class Repository
 
     protected $model;
 
-    public function getAll()
+    public function getAll($query = NULL)
     {
         if (!$this->model) {
             return;
@@ -18,6 +18,9 @@ class Repository
         
         $request = $this->getRequest();
         $collection = $this->model;
+        if ($query) {
+            $collection = $query;
+        }
         if ($request['sort_by']) {
             if ($request['sort_direction'] == 'desc') {
                 $collection = $collection->orderByDesc($request['sort_by']);
@@ -30,12 +33,18 @@ class Repository
         return $data;
     }
 
+    public function getAllWithDetails()
+    {
+        $query = $this->model->details();
+        return $this->getAll($query);
+    }
+
     public function getById($id)
     {
         if (!$this->model) {
             return;
         }
-        $data = $this->model->findOrFail($id);
+        $data = $this->model->details()->findOrFail($id);
         return $data;
     }
 
