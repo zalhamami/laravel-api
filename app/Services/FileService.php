@@ -33,7 +33,7 @@ class FileService {
      * @param string $permission
      * @return array
      */
-    public function saveToStorage($file, string $path = NULL, string $fileName = NULL, string $permission = 'public')
+    public function saveToStorage($file, string $path = NULL, string $fileName = NULL, string $permission = 'public') : array
     {
         if (!$fileName && !$this->fromString) {
             $fileName = FileHelper::getFileName($file);
