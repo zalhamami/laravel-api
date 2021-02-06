@@ -23,12 +23,14 @@ Route::group(['prefix' => 'type'], function () {
 });
 
 Route::group(['prefix' => 'auth'], function () {
-    Route::post('login', 'AuthController@login');
+    Route::post('login', 'AuthController@login')->name('login');
     Route::post('register', 'AuthController@signup');
     Route::group(['middleware' => 'auth:api'], function() {
         Route::delete('logout', 'AuthController@logout');
     });
 });
+
+Route::post('broadcast/auth', 'BroadcastController@auth');
 
 Route::group(['prefix' => 'me', 'middleware' => 'auth:api'], function () {
     Route::get('user', 'AuthController@user');
@@ -45,3 +47,9 @@ Route::post('upload', function (Request $request) {
        'data' => $result,
     ]);
 });
+
+
+Route::resource('chat', 'ChatController')->only([
+    'index',
+    'store'
+]);
