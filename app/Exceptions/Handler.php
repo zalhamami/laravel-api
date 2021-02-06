@@ -14,6 +14,7 @@ use League\OAuth2\Server\Exception\OAuthServerException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Throwable;
 
 class Handler extends ExceptionHandler
 {
@@ -38,11 +39,11 @@ class Handler extends ExceptionHandler
     ];
 
     /**
-     * @param Exception $exception
+     * @param Throwable $exception
      * @return mixed|void
-     * @throws Exception
+     * @throws Throwable
      */
-    public function report(Exception $exception)
+    public function report(Throwable $exception)
     {
         if ($exception instanceof OAuthServerException) {
             return parent::report($exception);
@@ -55,10 +56,10 @@ class Handler extends ExceptionHandler
 
     /**
      * @param \Illuminate\Http\Request $request
-     * @param Exception $exception
+     * @param Throwable $exception
      * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response|\Symfony\Component\HttpFoundation\Response
      */
-    public function render($request, Exception $exception)
+    public function render($request, Throwable $exception)
     {
         if ($exception instanceof ValidationException) {
             return $this->convertValidationExceptionToResponse($exception, $request);
