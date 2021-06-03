@@ -3,11 +3,15 @@
 namespace App\Repositories;
 
 use App\Traits\ApiRequester;
+use Illuminate\Database\Eloquent\Model;
 
 class Repository
 {
     use ApiRequester;
 
+    /**
+     * @var Model
+     */
     protected $model;
 
     public function getAll($query = NULL)
@@ -15,7 +19,7 @@ class Repository
         if (!$this->model) {
             return;
         }
-        
+
         $request = $this->getRequest();
         $collection = $this->model;
         if ($query) {
