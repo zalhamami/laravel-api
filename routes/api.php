@@ -30,8 +30,6 @@ Route::group(['prefix' => 'auth'], function () {
     });
 });
 
-Route::post('broadcast/auth', 'BroadcastController@auth');
-
 Route::group(['prefix' => 'me', 'middleware' => 'auth:api'], function () {
     Route::get('user', 'AuthController@user');
 });

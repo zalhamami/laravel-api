@@ -10,13 +10,8 @@ use App\User;
 class AuthController extends ApiController
 {
     /**
-     * Create user
-     *
-     * @param  [string] name
-     * @param  [string] email
-     * @param  [string] password
-     * @param  [string] password_confirmation
-     * @return [string] message
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
      */
     public function signup(Request $request)
     {
@@ -25,29 +20,23 @@ class AuthController extends ApiController
             'email' => 'required|string|email|unique:users',
             'password' => 'required|string|confirmed'
         ]);
-        
+
         $user = new User([
             'name' => $request->name,
             'email' => $request->email,
             'password' => bcrypt($request->password)
         ]);
-        
+
         $user->save();
-        
+
         return $this->successResponse([
             'message' => 'Successfully created user!'
         ], 201);
     }
-  
+
     /**
-     * Login user and create token
-     *
-     * @param  [string] email
-     * @param  [string] password
-     * @param  [boolean] remember_me
-     * @return [string] access_token
-     * @return [string] token_type
-     * @return [string] expires_at
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
      */
     public function login(Request $request)
     {
@@ -55,9 +44,9 @@ class AuthController extends ApiController
             'email' => 'required|string|email',
             'password' => 'required|string'
         ]);
-        
+
         $credentials = request(['email', 'password']);
-        
+
         if(!Auth::attempt($credentials)) {
             return $this->errorResponse('User not found', 401);
         }
@@ -66,7 +55,7 @@ class AuthController extends ApiController
         $tokenResult = $user->createToken('Personal Access Token');
         $token = $tokenResult->token;
         $token->save();
-        
+
         return $this->singleData([
             'access_token' => $tokenResult->accessToken,
             'token_type' => 'Bearer',
@@ -75,25 +64,23 @@ class AuthController extends ApiController
             )->toDateTimeString()
         ]);
     }
-  
+
     /**
-     * Logout user (Revoke the token)
-     *
-     * @return [string] message
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
      */
     public function logout(Request $request)
     {
         $request->user()->token()->revoke();
-        
+
         return $this->successResponse([
             'message' => 'Successfully logged out'
         ]);
     }
-  
+
     /**
-     * Get the authenticated User
-     *
-     * @return [json] user object
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
      */
     public function user(Request $request)
     {
