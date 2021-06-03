@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\Storage;
-use phpDocumentor\Reflection\File;
 
 class StorageService {
     /**
@@ -48,5 +47,14 @@ class StorageService {
     public function delete(string $path)
     {
         $this->storage->delete($path);
+    }
+
+    /**
+     * @param string $path
+     * @return string
+     */
+    public function getUrl(string $path)
+    {
+        return $this->storage->url($path);
     }
 }
