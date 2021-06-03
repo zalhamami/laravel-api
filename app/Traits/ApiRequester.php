@@ -6,6 +6,9 @@ use Illuminate\Support\Facades\Validator;
 
 trait ApiRequester
 {
+    /**
+     * @return array
+     */
     protected function getRequest()
     {
         $request = request();
@@ -13,7 +16,7 @@ trait ApiRequester
             'per_page' => 'integer|min:2|max:50'
         ];
         Validator::validate($request->all(), $rules);
-        
+
         // Request Pagination
         $per_page = 30;
         if ($request->has('per_page')) {
