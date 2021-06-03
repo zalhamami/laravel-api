@@ -3,12 +3,15 @@
 namespace App\Repositories;
 
 use App\Type;
-use App\Repositories\Repository;
 
 class TypeRepository extends Repository
 {
-    public function __construct()
+    /**
+     * TypeRepository constructor.
+     * @param Type $model
+     */
+    public function __construct(Type $model)
     {
-        $this->model = new Type();
+        $this->model = $model;
     }
 }
