@@ -48,7 +48,7 @@ class Handler extends ExceptionHandler
         if ($exception instanceof OAuthServerException) {
             return parent::report($exception);
         }
-        if ($this->shouldReport($exception) && app()->bound('sentry')) {
+        if (env('SENTRY_ENABLE') && $this->shouldReport($exception) && app()->bound('sentry')) {
             app('sentry')->captureException($exception);
         }
         parent::report($exception);
