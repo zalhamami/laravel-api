@@ -41,7 +41,10 @@ class UserController extends ApiController
      */
     public function showMyData(Request $request)
     {
-        return $this->singleData($request->user());
+        $user = $request->user();
+        $response = $user;
+        $response['roles'] = $user->roles;
+        return $this->singleData($response);
     }
 
     /**

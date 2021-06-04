@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Repositories\UserRepository;
+use App\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
@@ -42,6 +43,7 @@ class AuthController extends ApiController
             'password' => bcrypt($request->password)
         ]);
         $user->save();
+        $user->assignRole(Role::USER);
         $user->sendEmailVerificationNotification();
 
         return $this->successResponse([
