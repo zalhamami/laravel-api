@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Repositories\UserRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
@@ -9,6 +10,20 @@ use App\User;
 
 class AuthController extends ApiController
 {
+    /**
+     * @var UserRepository
+     */
+    private $userRepo;
+
+    /**
+     * AuthController constructor.
+     * @param UserRepository $userRepo
+     */
+    public function __construct(UserRepository $userRepo)
+    {
+        $this->userRepo = $userRepo;
+    }
+
     /**
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
@@ -26,8 +41,8 @@ class AuthController extends ApiController
             'email' => $request->email,
             'password' => bcrypt($request->password)
         ]);
-
         $user->save();
+        $user->sendEmailVerificationNotification();
 
         return $this->successResponse([
             'message' => 'Successfully created user!'
@@ -45,24 +60,38 @@ class AuthController extends ApiController
             'password' => 'required|string'
         ]);
 
+        $user = $this->userRepo->getByField('email', $request['email']);
         $credentials = request(['email', 'password']);
-
         if(!Auth::attempt($credentials)) {
             return $this->errorResponse('User not found', 401);
         }
 
-        $user = $request->user();
+        if (!$user->hasVerifiedEmail()) {
+            $user->sendEmailVerificationNotification();
+            return $this->errorResponse('Please verify your email first before login.', 400);
+        }
+
+        $response = $this->createAccessToken($user);
+        return $this->singleData($response);
+    }
+
+    /**
+     * @param User $user
+     * @return array
+     */
+    private function createAccessToken(User $user)
+    {
         $tokenResult = $user->createToken('Personal Access Token');
         $token = $tokenResult->token;
         $token->save();
 
-        return $this->singleData([
+        return [
             'access_token' => $tokenResult->accessToken,
             'token_type' => 'Bearer',
             'expires_at' => Carbon::parse(
                 $tokenResult->token->expires_at
             )->toDateTimeString()
-        ]);
+        ];
     }
 
     /**
@@ -76,14 +105,5 @@ class AuthController extends ApiController
         return $this->successResponse([
             'message' => 'Successfully logged out'
         ]);
-    }
-
-    /**
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function user(Request $request)
-    {
-        return $this->singleData($request->user());
     }
 }
