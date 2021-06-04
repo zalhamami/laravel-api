@@ -30,8 +30,23 @@ Route::group(['prefix' => 'auth'], function () {
     });
 });
 
+Route::post('password/reset', 'Auth\ResetPasswordController@reset');
+
+Route::group(['prefix' => 'email/verify'], function () {
+    Route::get('/{id}', 'EmailVerificationController@verify')->name('verification.verify');
+    Route::post('/{value}/resend', 'EmailVerificationController@resend')->name('verification.resend');
+});
+
 Route::group(['prefix' => 'me', 'middleware' => 'auth:api'], function () {
-    Route::get('user', 'AuthController@user');
+    Route::get('user', 'UserController@showMyData');
+    Route::put('user', 'UserController@updateMyData');
+    Route::post('user/password/create', 'UserController@createPassword');
+    Route::post('user/password/change', 'UserController@changePassword');
+});
+
+Route::group(['prefix' => 'user', 'middleware' => ['auth:api', 'role:admin']], function () {
+    Route::get('/', 'UserController@index');
+    Route::delete('/{id}', 'UserController@destroy');
 });
 
 Route::post('upload', function (Request $request) {
@@ -45,9 +60,3 @@ Route::post('upload', function (Request $request) {
        'data' => $result,
     ]);
 });
-
-
-Route::resource('chat', 'ChatController')->only([
-    'index',
-    'store'
-]);
