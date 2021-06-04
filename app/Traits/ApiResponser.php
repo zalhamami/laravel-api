@@ -46,4 +46,17 @@ trait ApiResponser
     {
         return $this->successResponse($model, $code);
     }
+
+    /**
+     * @param array $data
+     * @param int $code
+     * @return \Illuminate\Http\JsonResponse
+     */
+    protected function deleteMessage($data = [], $code = 200)
+    {
+        return $this->successResponse([
+            'message' => 'Delete Success',
+            'data' => $data,
+        ], $code);
+    }
 }
