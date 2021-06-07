@@ -26,11 +26,29 @@ Route::group(['prefix' => 'auth'], function () {
     Route::post('login', 'AuthController@login')->name('login');
     Route::post('register', 'AuthController@signup');
     Route::group(['middleware' => 'auth:api'], function() {
-        Route::delete('logout', 'AuthController@logout');
+        Route::delete('/logout', 'AuthController@revokeUserToken');
     });
 });
 
-Route::post('password/reset', 'Auth\ResetPasswordController@reset');
+Route::group(['prefix' => 'oauth'], function () {
+    Route::group(['middleware' => 'auth:api'], function() {
+        Route::delete('/revoke', 'AuthController@revokeUserToken');
+        Route::get('/info', 'AuthController@checkAuth');
+    });
+    Route::group(['middleware' => 'client.credentials'], function() {
+        Route::get('/client/info', 'AuthController@checkAuth');
+    });
+});
+
+\Laravel\Passport\Passport::routes(function ($router) {
+    Route::post('/token', [
+        'uses' => 'AccessTokenController@issueToken',
+        'as' => 'passport.token',
+    ]);
+    $router->all();
+});
+
+//Route::post('password/reset', 'Auth\ResetPasswordController@reset');
 
 Route::group(['prefix' => 'email/verify'], function () {
     Route::get('/{id}', 'EmailVerificationController@verify')->name('verification.verify');
