@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use App\User;
+use Illuminate\Support\Facades\DB;
 
 class AuthController extends ApiController
 {
@@ -97,10 +98,24 @@ class AuthController extends ApiController
     }
 
     /**
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function checkAuth()
+    {
+        $response = DB::table('oauth_access_tokens')
+                        ->where('revoked', 0)
+                        ->orderByDesc('created_at')
+                        ->first();
+        return $this->singleData([
+            'expires_at' => $response->expires_at
+        ]);
+    }
+
+    /**
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function logout(Request $request)
+    public function revokeUserToken(Request $request)
     {
         $request->user()->token()->revoke();
 
