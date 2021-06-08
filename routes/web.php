@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,8 +18,15 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth'])->name('dashboard');
+Route::group(['prefix' => 'dashboard', 'middleware' => 'auth'], function () {
+    Route::get('/', function () {
+        return view('dashboard');
+    })->name('dashboard');
+    Route::get('/clients', function (Request $request) {
+        return view('clients', [
+            'clients' => $request->user()->clients
+        ]);
+    })->name('dashboard.clients');
+});
 
 require __DIR__.'/auth.php';
