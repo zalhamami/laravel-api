@@ -7,12 +7,10 @@ use App\Jobs\NotifyUserOfCompletedExport;
 use App\Jobs\ProcessUsersExport;
 use App\Mail\ExportCompleteMail;
 use App\Repositories\UserRepository;
-use App\Services\FileService;
-use App\Services\StorageService;
+use App\Role;
 use App\Storage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
 use Maatwebsite\Excel\Facades\Excel;
 use Propaganistas\LaravelPhone\PhoneNumber;
 
@@ -45,6 +43,32 @@ class UserController extends ApiController
         $response = $user;
         $response['roles'] = $user->roles;
         return $this->singleData($response);
+    }
+
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function store(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string',
+            'email' => 'required|string|email|unique:users',
+            'password' => 'required|string|confirmed'
+        ]);
+
+        $user = $this->repo->create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => bcrypt($request->password)
+        ]);
+        $user->save();
+        $user->assignRole(Role::USER);
+        $user->sendEmailVerificationNotification();
+
+        return $this->successResponse([
+            'message' => 'Successfully created user!'
+        ], 201);
     }
 
     /**
