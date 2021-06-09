@@ -44,7 +44,9 @@ class User extends Authenticatable
 
     public function clients()
     {
-        return $this->hasMany(Passport::clientModel(), 'user_id')->orderByDesc('created_at');
+        return $this->hasMany(Passport::clientModel(), 'user_id')
+                    ->where('revoked', 0)
+                    ->orderByDesc('created_at');
     }
 
     public function scopeDetails($query)
