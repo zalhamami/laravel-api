@@ -104,9 +104,9 @@ class Handler extends ExceptionHandler
      */
     protected function unauthenticated($request, AuthenticationException $exception)
     {
-        return str_contains($request->getPathInfo(), 'oauth/authorize')
-            ? redirect()->guest($exception->redirectTo() ?? route('login'))
-            : $this->errorResponse('Unauthorized client.', 401);
+        return str_contains($request->getPathInfo(), '/api/')
+            ? $this->errorResponse('Unauthorized client.', 401)
+            : redirect()->guest($exception->redirectTo() ?? route('login'));
     }
 
     /**
