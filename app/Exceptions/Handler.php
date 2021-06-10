@@ -112,11 +112,16 @@ class Handler extends ExceptionHandler
     /**
      * @param ValidationException $e
      * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\Response|\Symfony\Component\HttpFoundation\Response
+     * @return bool|\Illuminate\Http\JsonResponse|\Illuminate\Http\Response|\Symfony\Component\HttpFoundation\Response|null
      */
     protected function convertValidationExceptionToResponse(ValidationException $e, $request)
     {
-        $errors = $e->validator->errors()->getMessages();
-        return $this->errorResponse($errors, 400);
+        if ($e->response) {
+            return $e->response;
+        }
+
+        return str_contains($request->getPathInfo(), '/api/')
+            ? $this->errorResponse($e->validator->errors()->getMessages(), 400)
+            : $this->invalid($request, $e);
     }
 }
