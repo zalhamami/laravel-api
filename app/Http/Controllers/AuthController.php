@@ -39,7 +39,7 @@ class AuthController extends ApiController
         $user = $this->userRepo->getByField('email', $request['email']);
         $credentials = request(['email', 'password']);
         if(!Auth::attempt($credentials)) {
-            return $this->errorResponse('User not found', 401);
+            return $this->errorResponse('These credentials do not match our records', 401);
         }
 
         if (!$user->hasVerifiedEmail()) {
