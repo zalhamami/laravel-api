@@ -22,15 +22,9 @@ Route::group(['prefix' => 'type'], function () {
     });
 });
 
-Route::group(['prefix' => 'auth'], function () {
-    Route::post('login', 'AuthController@login')->name('login');
-    Route::post('register', 'AuthController@signup');
-    Route::group(['middleware' => 'auth:api'], function() {
-        Route::delete('/logout', 'AuthController@revokeUserToken');
-    });
-});
-
 Route::group(['prefix' => 'oauth'], function () {
+    Route::post('login', 'AuthController@login');
+    Route::post('register', 'AuthController@signup');
     Route::group(['middleware' => 'auth:api'], function() {
         Route::delete('/revoke', 'AuthController@revokeUserToken');
         Route::get('/info', 'AuthController@checkAuth');
@@ -43,9 +37,12 @@ Route::group(['prefix' => 'oauth'], function () {
 \Laravel\Passport\Passport::routes(function ($router) {
     Route::post('/token', [
         'uses' => 'AccessTokenController@issueToken',
-        'as' => 'passport.token',
+        'as' => 'api.oauth.token',
     ]);
-    $router->all();
+    Route::get('/scopes', [
+        'uses' => 'ScopeController@all',
+        'as' => 'api.oauth.scopes.index',
+    ]);
 });
 
 //Route::post('password/reset', 'Auth\ResetPasswordController@reset');
@@ -62,9 +59,12 @@ Route::group(['prefix' => 'me', 'middleware' => 'auth:api'], function () {
     Route::post('user/password/change', 'UserController@changePassword');
 });
 
-Route::group(['prefix' => 'user', 'middleware' => ['auth:api', 'role:admin']], function () {
-    Route::get('/', 'UserController@index');
-    Route::delete('/{id}', 'UserController@destroy');
+Route::group(['prefix' => 'user'], function () {
+    Route::post('/', 'UserController@store');
+    Route::group(['middleware' => ['auth:api', 'role:admin']], function () {
+        Route::get('/', 'UserController@index');
+        Route::delete('/{id}', 'UserController@destroy');
+    });
 });
 
 Route::post('upload', function (Request $request) {

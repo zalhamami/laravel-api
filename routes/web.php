@@ -1,5 +1,8 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -15,11 +18,15 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/ping', function () {
-    try {
-        \Illuminate\Support\Facades\DB::connection()->getPdo();
-    } catch (\Exception $e) {
-        die('Could not connect to the database. Please check your configuration.');
-    }
-    return 'OK';
+Route::group(['prefix' => 'dashboard', 'middleware' => 'auth'], function () {
+    Route::get('/', function () {
+        return view('dashboard');
+    })->name('dashboard');
+    Route::get('/clients', function (Request $request) {
+        return view('clients', [
+            'clients' => $request->user()->clients
+        ]);
+    })->name('dashboard.clients');
 });
+
+require __DIR__.'/auth.php';

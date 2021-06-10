@@ -8,6 +8,7 @@ use Laravel\Passport\HasApiTokens;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Passport\Passport;
 use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
@@ -40,6 +41,13 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function clients()
+    {
+        return $this->hasMany(Passport::clientModel(), 'user_id')
+                    ->where('revoked', 0)
+                    ->orderByDesc('created_at');
+    }
 
     public function scopeDetails($query)
     {

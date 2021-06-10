@@ -19,7 +19,7 @@
                 </table>
                 <p>This password reset link will expire in 60 minutes.</p>
                 <p>If you did not request a password reset, no further action is required.</p>
-                <p>Best Regards,<br>Virtual Expo ID Team</p>
+                <p>Best Regards,<br>App</p>
                 <table class="body-sub">
                     <tr>
                         <td>

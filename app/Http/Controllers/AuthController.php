@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\User;
 use App\Repositories\UserRepository;
-use App\Role;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
-use App\User;
 use Illuminate\Support\Facades\DB;
 
 class AuthController extends ApiController
@@ -30,32 +29,6 @@ class AuthController extends ApiController
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function signup(Request $request)
-    {
-        $request->validate([
-            'name' => 'required|string',
-            'email' => 'required|string|email|unique:users',
-            'password' => 'required|string|confirmed'
-        ]);
-
-        $user = new User([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => bcrypt($request->password)
-        ]);
-        $user->save();
-        $user->assignRole(Role::USER);
-        $user->sendEmailVerificationNotification();
-
-        return $this->successResponse([
-            'message' => 'Successfully created user!'
-        ], 201);
-    }
-
-    /**
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function login(Request $request)
     {
         $request->validate([
@@ -66,7 +39,7 @@ class AuthController extends ApiController
         $user = $this->userRepo->getByField('email', $request['email']);
         $credentials = request(['email', 'password']);
         if(!Auth::attempt($credentials)) {
-            return $this->errorResponse('User not found', 401);
+            return $this->errorResponse('These credentials do not match our records', 401);
         }
 
         if (!$user->hasVerifiedEmail()) {
@@ -120,7 +93,7 @@ class AuthController extends ApiController
         $request->user()->token()->revoke();
 
         return $this->successResponse([
-            'message' => 'Successfully logged out'
+            'message' => 'Successfully revoked'
         ]);
     }
 }
