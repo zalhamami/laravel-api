@@ -1,6 +1,9 @@
 <?php
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+use Laravel\Passport\Http\Controllers\AccessTokenController;
+use Laravel\Passport\Http\Controllers\ScopeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -34,21 +37,17 @@ Route::group(['prefix' => 'oauth'], function () {
     });
 });
 
-\Laravel\Passport\Passport::routes(function ($router) {
-    Route::post('/token', [
-        'uses' => 'AccessTokenController@issueToken',
-        'as' => 'api.oauth.token',
-    ]);
-    Route::get('/scopes', [
-        'uses' => 'ScopeController@all',
-        'as' => 'api.oauth.scopes.index',
-    ]);
+Route::prefix('oauth')->group(function () {
+    Route::post('/token', [AccessTokenController::class, 'issueToken'])->name('api.oauth.token');
+    Route::get('/scopes', [ScopeController::class, 'all'])->name('api.oauth.scopes.index');
 });
 
 //Route::post('password/reset', 'Auth\ResetPasswordController@reset');
 
 Route::group(['prefix' => 'email/verify'], function () {
-    Route::get('/{id}', 'EmailVerificationController@verify')->name('verification.verify');
+    // Not named "verification.verify": that name belongs to the web route in routes/auth.php,
+    // which is the link VerifyEmailNotification sends.
+    Route::get('/{id}', 'EmailVerificationController@verify')->name('api.verification.verify');
     Route::post('/{value}/resend', 'EmailVerificationController@resend')->name('verification.resend');
 });
 

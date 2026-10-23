@@ -2,9 +2,13 @@
 
 namespace App\Providers;
 
-use App\Adapters\GoogleDriveAdapter;
+use Google\Client as GoogleClient;
+use Google\Service\Drive;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\ServiceProvider;
+use League\Flysystem\Filesystem;
+use Masbug\Flysystem\GoogleDriveAdapter;
 
 class GoogleDriveServiceProvider extends ServiceProvider
 {
@@ -26,13 +30,19 @@ class GoogleDriveServiceProvider extends ServiceProvider
     public function boot()
     {
         Storage::extend('gdrive', function ($app, $config) {
-            $client = new \Google_Client();
+            $client = new GoogleClient();
             $client->setClientId($config['client_id']);
             $client->setClientSecret($config['client_secret']);
             $client->refreshToken($config['refresh_token']);
-            $service = new \Google_Service_Drive($client);
-            $adapter = new GoogleDriveAdapter($service, $config['folder_id']);
-            return new \League\Flysystem\Filesystem($adapter);
+            $service = new Drive($client);
+
+            $options = [];
+            if (! empty($config['folder_id'])) {
+                $options['sharedFolderId'] = $config['folder_id'];
+            }
+            $adapter = new GoogleDriveAdapter($service, null, $options);
+
+            return new FilesystemAdapter(new Filesystem($adapter, $config), $adapter, $config);
         });
     }
 }
