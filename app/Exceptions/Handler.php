@@ -106,7 +106,7 @@ class Handler extends ExceptionHandler
     {
         return str_contains($request->getPathInfo(), '/api/')
             ? $this->errorResponse('Unauthorized client.', 401)
-            : redirect()->guest($exception->redirectTo() ?? route('login'));
+            : redirect()->guest($exception->redirectTo($request) ?? route('login'));
     }
 
     /**
